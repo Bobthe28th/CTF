@@ -18,6 +18,7 @@ public class CTF extends Game {
         teams.put("Blue",new CTFTeam("Blue", ChatColor.BLUE, Material.BLUE_BANNER));
         teams.put("Red",new CTFTeam("Red", ChatColor.RED, Material.RED_BANNER));
         objective = new ScoreboardObjective("ctf","Capture the Flag");
+        gameRules.setRule("pointstowin",3);
     }
 
     public HashMap<String,CTFTeam> getTeams() {

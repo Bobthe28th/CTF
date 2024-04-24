@@ -2,6 +2,7 @@ package me.bobthe28th.bday.games.managers;
 
 import me.bobthe28th.bday.Main;
 import me.bobthe28th.bday.games.Game;
+import me.bobthe28th.bday.games.ctf.CTF;
 import me.bobthe28th.bday.games.player.GamePlayer;
 import me.bobthe28th.bday.games.GameState;
 import me.bobthe28th.bday.games.rule.DamageRule;
@@ -25,7 +26,9 @@ import org.bukkit.event.player.*;
 import org.bukkit.util.Vector;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class GameManager implements Listener {
 
@@ -34,15 +37,29 @@ public class GameManager implements Listener {
     private boolean breakBlocks = false;
     private MoveRule moveRule = MoveRule.ALL;
     private final HashMap<Player, GamePlayer> gamePlayers = new HashMap<>();
+    private final HashMap<String,Class<? extends Game>> gameList = new HashMap<>();
 
     private Game currentGame = null;
 
     public GameManager(Main plugin) {
         this.plugin = plugin;
+        gameList.put("ctf", CTF.class);
         plugin.getServer().getPluginManager().registerEvents(this,plugin);
         for (Player player : Bukkit.getOnlinePlayers()) {
             gamePlayers.put(player,new GamePlayer(plugin,player));
         }
+    }
+
+    public Class<? extends Game> getGame(String name) {
+        return gameList.get(name);
+    }
+
+    public HashMap<String, Class<? extends Game>> getGames() {
+        return gameList;
+    }
+
+    public ArrayList<String> getGameNames() {
+        return new ArrayList<>(gameList.keySet());
     }
 
     public void setGame(Class<? extends Game> game) {
@@ -57,6 +74,21 @@ public class GameManager implements Listener {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    public void startGame() {
+        if (currentGame == null) return;
+        if (currentGame.getState() != GameState.LOBBY) return;
+        currentGame.start();
+    }
+
+    public void startGame(Class<? extends Game> game) {
+        setGame(game);
+        startGame();
+    }
+
+    public Game getCurrentGame() {
+        return currentGame;
     }
 
     public HashMap<Player, GamePlayer> getGamePlayers() {
@@ -93,9 +125,22 @@ public class GameManager implements Listener {
     public void onEntityDamage(EntityDamageEvent event) {
         if (damageRule == DamageRule.NONE && event.getCause() != EntityDamageEvent.DamageCause.VOID && event.getEntity() instanceof Player) {
             event.setCancelled(true);
+            return;
         } else if (damageRule == DamageRule.NONPLAYER) {
             if (event instanceof EntityDamageByEntityEvent byEntityEvent && byEntityEvent.getDamager() instanceof Player) {
                 event.setCancelled(true);
+                return;
+            }
+        }
+        if (!(event.getEntity() instanceof LivingEntity damaged)) return;
+        if (damaged instanceof Player pDamaged) {
+            if (gamePlayers.containsKey(pDamaged)) {
+                gamePlayers.get(pDamaged).takeDamage(event.getFinalDamage());
+            }
+        }
+        for (GamePlayer player : gamePlayers.values()) {
+            if (player.getEnemyHealthBar().getEnemy() == damaged) {
+                player.getEnemyHealthBar().updateEnemyHealth(damaged, event.getFinalDamage());
             }
         }
     }
@@ -104,11 +149,6 @@ public class GameManager implements Listener {
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if (event.isCancelled()) return;
         if (!(event.getEntity() instanceof LivingEntity damaged)) return;
-        for (GamePlayer player : gamePlayers.values()) {
-            if (player.getEnemyHealthBar().getEnemy() == damaged) {
-                player.getEnemyHealthBar().updateEnemyHealth(damaged);
-            }
-        }
         if (!(event.getDamager() instanceof Player damager)) return;
         if (gamePlayers.containsKey(damager)) {
             gamePlayers.get(damager).damage(damaged, event.getFinalDamage());
@@ -145,7 +185,8 @@ public class GameManager implements Listener {
         if (moveRule == MoveRule.NONE) {
             event.setCancelled(true);
         } else {
-            if (event.getTo() != null && event.getTo().toVector().equals(event.getFrom().toVector())) return;
+            if (event.getTo() == null) return;
+            if (event.getTo().toVector().equals(event.getFrom().toVector())) return;
             if (moveRule == MoveRule.LOOK) {
                 Location l = event.getFrom().clone();
                 l.setYaw(event.getTo().getYaw());
@@ -169,9 +210,13 @@ public class GameManager implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         event.setJoinMessage(ChatColor.GRAY + "[" + ChatColor.GREEN + "+" + ChatColor.GRAY + "] " + ChatColor.YELLOW + event.getPlayer().getDisplayName() + " joined");
-        gamePlayers.put(event.getPlayer(),new GamePlayer(plugin,event.getPlayer()));
+        addPlayer(event.getPlayer());
+    }
+
+    public void addPlayer(Player player) {
+        gamePlayers.put(player,new GamePlayer(plugin,player));
         if (currentGame != null && currentGame.getState() != GameState.END) { //TODO remove and add end join state?
-            currentGame.onPlayerJoin(gamePlayers.get(event.getPlayer()));
+            currentGame.onPlayerJoin(gamePlayers.get(player));
         }
     }
 
@@ -179,11 +224,15 @@ public class GameManager implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         event.setQuitMessage(ChatColor.GRAY + "[" + ChatColor.RED + "-" + ChatColor.GRAY + "] " + ChatColor.YELLOW + event.getPlayer().getDisplayName() + " left");
         if (gamePlayers.get(event.getPlayer()) != null) {
-            if (currentGame != null && currentGame.getState() != GameState.END) {
-                currentGame.onPlayerLeave(gamePlayers.get(event.getPlayer()));
-            }
-            gamePlayers.remove(event.getPlayer());
+            removePlayer(event.getPlayer());
         }
+    }
+
+    public void removePlayer(Player player) {
+        if (currentGame != null && currentGame.getState() != GameState.END) {
+            currentGame.onPlayerLeave(gamePlayers.get(player));
+        }
+        gamePlayers.remove(player);
     }
 
     @EventHandler

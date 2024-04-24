@@ -9,11 +9,17 @@ commands:
     description: for debug
     usage: /<command>
   start:
-    description: Starts a game
+    description: Starts a game.
     usage: /<command> <game>
   music:
-    description: Plays music
+    description: Plays music.
     usage: /<command>
   join:
     description: Temporary join in game.
     usage: /<command>
+  leave:
+    description: Leave the game.
+    usage: /<command>
+  prepare:
+    description: Prepare a game.
+    usage: /<command> <game>

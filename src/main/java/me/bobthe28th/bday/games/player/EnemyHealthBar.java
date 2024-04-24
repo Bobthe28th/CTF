@@ -13,7 +13,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class EnemyHealthBar {
 
     private final Main plugin;
-    private final GamePlayer player;
     private final BossBar enemyHealth;
     private LivingEntity enemy;
     private final double enemyHealthCooldownMax = 4.0;
@@ -22,7 +21,6 @@ public class EnemyHealthBar {
 
     public EnemyHealthBar(GamePlayer player, Main plugin) {
         this.plugin = plugin;
-        this.player = player;
         enemyHealth = Bukkit.createBossBar("", BarColor.RED, BarStyle.SEGMENTED_10);
         enemyHealth.setVisible(false);
         enemyHealth.addPlayer(player.getPlayer());

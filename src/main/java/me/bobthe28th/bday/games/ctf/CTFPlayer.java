@@ -1,6 +1,8 @@
 package me.bobthe28th.bday.games.ctf;
 
-public abstract class CTFPlayer {
+import me.bobthe28th.bday.games.player.GameModePlayer;
+
+public abstract class CTFPlayer extends GameModePlayer {
 
     abstract void spawn();
     
