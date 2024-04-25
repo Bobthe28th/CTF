@@ -3,7 +3,7 @@ package me.bobthe28th.bday.games.player;
 import me.bobthe28th.bday.Main;
 import net.minecraft.network.protocol.game.ClientboundSetHealthPacket;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R4.entity.CraftPlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Objects;

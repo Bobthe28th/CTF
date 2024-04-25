@@ -12,7 +12,7 @@ public class Main extends JavaPlugin {
     private MusicManager musicManager;
     @Override
     public void onEnable() {
-        getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "This is a test 4!");
+        getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "This is a test 8!");
         gameManager = new GameManager(this);
         musicManager = new MusicManager(this);
         new Commands(this);

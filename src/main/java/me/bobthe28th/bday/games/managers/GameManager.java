@@ -13,6 +13,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.advancement.Advancement;
+import org.bukkit.entity.GlowItemFrame;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -22,6 +24,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.util.Vector;
 
@@ -33,7 +36,7 @@ import java.util.List;
 public class GameManager implements Listener {
 
     private final Main plugin;
-    private DamageRule damageRule = DamageRule.NONE;
+    private DamageRule damageRule = DamageRule.NONPLAYER;
     private boolean breakBlocks = false;
     private MoveRule moveRule = MoveRule.ALL;
     private final HashMap<Player, GamePlayer> gamePlayers = new HashMap<>();
@@ -120,6 +123,39 @@ public class GameManager implements Listener {
     }
 
     //TODO swap hands, food, armor stand, interact with item frame, drop item
+
+    @EventHandler
+    public void onFoodLevelChange(FoodLevelChangeEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            if (!gamePlayers.containsKey(player)) return;
+            player.setFoodLevel(20);
+            player.setSaturation(0F);
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
+        if (!gamePlayers.containsKey(event.getPlayer())) return;
+        if (event.getPlayer().getGameMode() == GameMode.CREATIVE) return;
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+        if (!gamePlayers.containsKey(event.getPlayer())) return;
+        if (event.getPlayer().getGameMode() == GameMode.CREATIVE) return;
+        if (event.getRightClicked() instanceof ItemFrame || event.getRightClicked() instanceof GlowItemFrame) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
+        if (!gamePlayers.containsKey(event.getPlayer())) return;
+        if (event.getPlayer().getGameMode() == GameMode.CREATIVE) return;
+        event.setCancelled(true);
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onEntityDamage(EntityDamageEvent event) {

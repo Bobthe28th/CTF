@@ -1,10 +1,13 @@
 package me.bobthe28th.bday.games;
 
 import me.bobthe28th.bday.Main;
+import me.bobthe28th.bday.games.ctf.CTFTeam;
 import me.bobthe28th.bday.games.gamerules.GameRules;
 import me.bobthe28th.bday.games.managers.GameManager;
 import me.bobthe28th.bday.games.player.GamePlayer;
 import me.bobthe28th.bday.scoreboard.ScoreboardObjective;
+
+import java.util.HashMap;
 
 public abstract class Game {
 
@@ -13,6 +16,8 @@ public abstract class Game {
     protected final GameManager manager;
     protected ScoreboardObjective objective;
     protected GameRules gameRules;
+
+    protected final HashMap<String, GameTeam> teams = new HashMap<>();
 
     protected GameMap map;
 
@@ -32,6 +37,10 @@ public abstract class Game {
     public void end() {
         disable();
         state = GameState.END;
+    }
+
+    public HashMap<String, GameTeam> getTeams() {
+        return teams;
     }
 
     public GameManager getManager() {
