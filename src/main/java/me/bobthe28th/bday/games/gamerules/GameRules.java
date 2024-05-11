@@ -5,7 +5,7 @@ import org.bukkit.GameRule;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public abstract class GameRules {
+public class GameRules {
 
     private HashMap<String, GameRuleValue<?>> rules = new HashMap<>();
 

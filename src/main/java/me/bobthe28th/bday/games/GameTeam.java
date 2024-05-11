@@ -19,4 +19,8 @@ public class GameTeam {
     public Material getTeamSelectBlock() {
         return teamSelectBlock;
     }
+
+    public ScoreboardTeam getTeam() {
+        return team;
+    }
 }

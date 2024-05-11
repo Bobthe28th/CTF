@@ -2,6 +2,8 @@ package me.bobthe28th.bday.games.player;
 
 import me.bobthe28th.bday.Main;
 import me.bobthe28th.bday.classes.items.GameItem;
+import me.bobthe28th.bday.games.GameTeam;
+import me.bobthe28th.bday.games.ctf.CTFTeam;
 import me.bobthe28th.bday.scoreboard.ScoreboardController;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
@@ -19,8 +21,9 @@ public class GamePlayer {
     private final ScoreboardController scoreboardController;
     private final EnemyHealthBar enemyHealthBar;
     private final Regen regen;
-    boolean isAlive;
+    protected boolean isAlive;
     protected ArrayList<? extends GameItem> items = new ArrayList<>();
+    protected GameTeam team = null;
 
     public GamePlayer(Main plugin, Player player) {
         //plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -43,6 +46,24 @@ public class GamePlayer {
 
     public Player getPlayer() {
         return player;
+    }
+
+    public GameTeam getTeam() {
+        return team;
+    }
+
+    public void setTeam(GameTeam team) {
+        this.team.getTeam().removePlayer(scoreboardController, true);
+        this.team = team;
+        this.team.getTeam().addPlayer(scoreboardController);
+        //TODO update alive
+    }
+
+    public void leaveTeam() {
+        if (team != null) {
+            team.getTeam().removePlayer(scoreboardController, true);
+            team = null;
+        }
     }
 
     public ScoreboardController getScoreboardController() {

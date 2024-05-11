@@ -69,4 +69,9 @@ public class ScoreboardObjective {
     public Objective getObjective(ScoreboardController controller) {
         return objectives.get(controller);
     }
+
+    public void removePlayer(ScoreboardController p) {
+        objectives.get(p).unregister();
+        objectives.remove(p);
+    }
 }

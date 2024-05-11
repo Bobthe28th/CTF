@@ -9,14 +9,15 @@ import me.bobthe28th.bday.games.GameState;
 import me.bobthe28th.bday.scoreboard.ScoreboardObjective;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.World;
 
 import java.util.HashMap;
 
 public class CTF extends Game {
 
 
-    public CTF(Main plugin) {
-        super(plugin);
+    public CTF(Main plugin, World world) {
+        super(plugin, world);
         teams.put("Blue",new CTFTeam("Blue", ChatColor.BLUE, Material.BLUE_CONCRETE, Material.BLUE_BANNER));
         teams.put("Red",new CTFTeam("Red", ChatColor.RED, Material.RED_CONCRETE, Material.RED_BANNER));
         objective = new ScoreboardObjective("ctf","Capture the Flag");
@@ -41,6 +42,7 @@ public class CTF extends Game {
 
     @Override
     public void disable() {
+        enabled = false;
         objective.remove();
     }
 }

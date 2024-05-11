@@ -8,10 +8,7 @@ import me.bobthe28th.bday.games.GameState;
 import me.bobthe28th.bday.games.rule.DamageRule;
 import me.bobthe28th.bday.games.rule.MoveRule;
 import me.bobthe28th.bday.util.TextUtil;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
+import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.entity.GlowItemFrame;
 import org.bukkit.entity.ItemFrame;
@@ -19,6 +16,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -36,7 +34,7 @@ import java.util.List;
 public class GameManager implements Listener {
 
     private final Main plugin;
-    private DamageRule damageRule = DamageRule.NONPLAYER;
+    private DamageRule damageRule = DamageRule.ALL;
     private boolean breakBlocks = false;
     private MoveRule moveRule = MoveRule.ALL;
     private final HashMap<Player, GamePlayer> gamePlayers = new HashMap<>();
@@ -51,6 +49,10 @@ public class GameManager implements Listener {
         for (Player player : Bukkit.getOnlinePlayers()) {
             gamePlayers.put(player,new GamePlayer(plugin,player));
         }
+    }
+
+    public void disable() {
+        HandlerList.unregisterAll(this);
     }
 
     public Class<? extends Game> getGame(String name) {
@@ -71,8 +73,8 @@ public class GameManager implements Listener {
         }
         if (game != null) {
             try {
-                Constructor<? extends Game> constructor = game.getConstructor(Main.class);
-                currentGame = constructor.newInstance(plugin);
+                Constructor<? extends Game> constructor = game.getConstructor(Main.class, World.class);
+                currentGame = constructor.newInstance(plugin, Bukkit.getWorlds().getFirst());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -122,7 +124,7 @@ public class GameManager implements Listener {
         return breakBlocks;
     }
 
-    //TODO swap hands, food, armor stand, interact with item frame, drop item
+    //TODO swap hands, armor stand, interact with item frame, drop item
 
     @EventHandler
     public void onFoodLevelChange(FoodLevelChangeEvent event) {
