@@ -1,6 +1,25 @@
-name: CTF
+name: bday
 version: 0.1
 author: Bobthe28th
-main: me.bobthe28th.ctf.Main
+main: me.bobthe28th.bday.Main
 description: Capture the flag updated
 api-version: 1.20
+commands:
+  test:
+    description: for debug
+    usage: /<command>
+  start:
+    description: Starts a game.
+    usage: /<command> <game>
+  music:
+    description: Plays music.
+    usage: /<command>
+  join:
+    description: Temporary join in game.
+    usage: /<command>
+  leave:
+    description: Leave the game.
+    usage: /<command>
+  prepare:
+    description: Prepare a game.
+    usage: /<command> <game>
